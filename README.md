@@ -1,5 +1,7 @@
 # Huffman Tree Implementation
 
+[正體中文](#README.zh-TW.md)
+
 Huffman coding is a widely used data compression algorithm. This project implements a Huffman tree to generate an optimal encoding scheme for efficient data compression.
 
 ## Demo
