@@ -77,7 +77,6 @@ class HuffmanTree:
         }
         df = pd.DataFrame(data)
 
-        # 如果需要排除虛擬符號
         if exclude_virtual:
             df = df[df['symbol'] != '虛擬符號']
 
@@ -116,7 +115,6 @@ class HuffmanTree:
         MAX_LENGTH = 32
         TARGET_LENGTH = 16
 
-
         # 調整編碼長度
         for i in range(MAX_LENGTH, TARGET_LENGTH, -1):
             while length_counts[i] > 0:
@@ -129,26 +127,12 @@ class HuffmanTree:
                 length_counts[j + 1] += 2
                 length_counts[j] -= 1
 
-        # # 確定最終的編碼長度分佈 
-        # i = 16
-        # while length_counts[i] == 0 and i > 0:
-        #     i -= 1
-        # length_counts[i] -= 1
-
-        # 應用這些編碼長度到符號上
+        # 更新代碼長度
         final_lengths = []
-        for i in range(1, TARGET_LENGTH+1):
-            count = length_counts[i]
-            for j in range(count):
-                final_lengths.append(i)
-        # print("[DEBUG] len(final_lengths)", len(final_lengths))
+        for length, count in length_counts.items():
+            final_lengths.extend([length] * count)
 
-        # 對 final_lengths 排序以匹配原始符號頻率順序
-        # symbols_sorted_by_freq = sorted(self.key_freq, key=self.key_freq.get, reverse=True)
         symbols_sorted_by_freq = df.sort_values(by='freq', ascending=False)['symbol']
-        # print("[DEBUG] len(symbols_sorted_by_freq)", len(symbols_sorted_by_freq))
-
-        # 更新 self.key_codelen
         for symbol, length in zip(symbols_sorted_by_freq, final_lengths):
             self.key_codelen[symbol] = length
 
@@ -169,21 +153,3 @@ class HuffmanTree:
         freq_dict = Counter(arr)
         freq_dict['虛擬符號'] = -1
         return cls(freq_dict)
-
-# 測試案例
-if __name__ == "__main__":
-    # test_arr = [1, 2, 3, 1, 2, 1, 1, 2, 3, 3, 3, 3]
-    test_arr = pd.read_csv("./datasets/baboon_JPEG70.csv").to_dict()
-    # test_arr = NFRS['freq'].to_dict()
-    # test_arr = {'a1': 5, 'a2': 5, 'b': 3, 'c1': 1, 'c2': 1, 'd': 2}
-    tree = HuffmanTree.init_arr(test_arr)
-    tree.limit_code_lengths()
-    huffman_table = tree.create_huffman_table()
-    print("Huffman Table:", huffman_table)
-    print("Compressed Size:", tree.compressed_size())
-    print("Max and Min Code Length:", tree.calculate_max_min_lengths())
-
-    new_huffman = tree.to_pandas(exclude_virtual=True)
-    new_huffman.to_csv("output.csv")
-    new_huffman.set_index('symbol', inplace=True)
-    new_huffman.to_dict()['code']
